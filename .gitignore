@@ -2,6 +2,8 @@
 __pycache__/
 *.py[codz]
 *$py.class
+output_table
+*.csv
 
 # C extensions
 *.so
