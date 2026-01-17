@@ -6,7 +6,7 @@ url = "https://en.wikipedia.org/w/api.php"
 
 params = {
     "action": "parse",
-    "page": "List_of_largest_companies_in_the_United_States_by_revenue",
+    "page": "List_of_countries_by_alcohol_consumption_per_capita",
     "format": "json",  
     "prop": "text"
 }
@@ -30,22 +30,23 @@ soup = BeautifulSoup(raw_html, 'html.parser')
 # 4. Find your table
 # Note: Wikipedia class names often change or have extra spaces. 
 # It is safer to select just "wikitable" or "sortable".
-table = soup.find_all('table')[0]
+table = soup.find_all('table', class_='wikitable')[2]
+# print(table)
 
-world_titles = table.find_all('th')
+headers = table.find_all('th')
 
-# Getting headers from the first table
-world_table_titles = [title.text.strip() for title in world_titles]
+# # Getting headers from the first table
+headers_table = [title.text.strip() for title in headers]
 
-# Creating dataframe using pandas
+# # Creating dataframe using pandas
 
-df = pd.DataFrame(columns= world_table_titles)
+df = pd.DataFrame(columns= headers_table)
 
-# Finding data within the table
+# # Finding data within the table
 
 column_data = table.find_all('tr')
 
-# Creating table, adding data under headers
+# # Creating table, adding data under headers
 for row in column_data[1:]:
     row_data = row.find_all('td')
     individual_row_data = [data.text.strip() for data in row_data]
@@ -54,4 +55,6 @@ for row in column_data[1:]:
     df.loc[length] = individual_row_data
 
 # Exporting output to .csv
-df.to_csv(r'C:\Users\ThomasDuong\Documents\GitHub\webpage_table_extractor\output_table\companies.csv', index = False)
+# df.to_csv(r'C:\Users\ThomasDuong\Documents\GitHub\webpage_table_extractor\output_table\companies.csv', index = False)
+
+print(df)
