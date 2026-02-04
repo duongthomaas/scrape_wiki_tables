@@ -3,12 +3,13 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import os
 from unidecode import unidecode
+from itertools import zip_longest
 
 url = "https://en.wikipedia.org/w/api.php"
 
 params = {
     "action": "parse",
-    "page": "Guinness_World_Records",
+    "page": "List_of_countries_by_number_of_billionaires",
     "format": "json",  
     "prop": "text"
 }
@@ -32,30 +33,37 @@ soup = BeautifulSoup(raw_html, 'html.parser')
 # 4. Find your table
 # Note: Wikipedia class names often change or have extra spaces. 
 # It is safer to select just "wikitable" or "sortable".
-table = soup.find_all('table', class_='wikitable')[1]
+table = soup.find_all('table', class_='wikitable')[0]
 
-headers = table.find_all('th')
+# Try to extract headers
+headers = table.find_all('tr')[0] # Taking only the first row in headers ---- This will ignore any subsequent rows possibly containing headers
 
-# Getting headers from the first table
 headers_table = [title.text.strip() for title in headers]
 
-# print(headers_table)
+# Removing empty values within a list
+headers_table_cleaned = []
+for i in headers_table:
+    if i != '':
+        headers_table_cleaned.append(i)
 
 # Creating dataframe using pandas
-
-df = pd.DataFrame(columns= headers_table)
-
+df = pd.DataFrame(columns=headers_table_cleaned)
+header_extraction_successful = True
+    
 # Finding data within the table
-
 column_data = table.find_all('tr')
-# print(column_data)
+if column_data[1].find_all('td'): # If there's <td> values in the second row, loops will start at index 1
+    starting_row = column_data[1:]
+else:
+    starting_row = column_data[2:] # Else -> start at index 2 because index 1 contains headers
 
 # Creating table, adding data under headers
 # Dictionary to track cells that span down from previous rows
 pending_cells = {} # Creates an empty dictionary. Structure will be: {row_index: {column_index: text}} to remember which cells from previous rows need to appear in future rows.
+all_rows_data = []  # Store all row data first before adding to dataframe
 
-for row_idx, row in enumerate(column_data[1:]): # Loops through each row (skipping the header at index 0). enumerate gives us both the index (row_idx) and the actual row element.
-    row_data = row.find_all('td') # Finds all the <td> (table cell) elements in this row.
+for row_idx, row in enumerate(starting_row): # Loops through each row (skipping the header at index 0 or 1). enumerate gives us both the index (row_idx) and the actual row element.
+    row_data = row.find_all(['td', 'th']) # Finds all the <td> and <th> (table cell) elements in this row.
     individual_row_data = [] # Creates an empty list to store the final data for this row (including duplicated cells from colspan/rowspan).
     col_idx = 0 # Tracks which column position we're currently at (0 = first column, 1 = second column, etc.).
     
@@ -93,19 +101,33 @@ for row_idx, row in enumerate(column_data[1:]): # Loops through each row (skippi
     for i in individual_row_data:
         individual_row_data_unidecode.append(unidecode(i))
     
+    # Store this row's data to be added later
+    all_rows_data.append(individual_row_data_unidecode)
+
+# Now add all rows to the appropriate dataframe
+try:
     # Add the completed row data to the dataframe at the next available index position.
-    length = len(df)
-    df.loc[length] = (individual_row_data_unidecode)
+    for row_data in all_rows_data:
+        length = len(df)
+        df.loc[length] = row_data
+except ValueError:
+    # If row doesn't match columns, skip or handle
+    # Alternative when parsing headers fails - create placeholders for headers and add existing rows to those placeholders
+    # Create placeholder column names based on the number of columns in the first row
+    num_columns = len(all_rows_data[0])
+    placeholder_columns = []
+    for i in range(num_columns):
+        placeholder_columns.append(i)
+    df = pd.DataFrame(all_rows_data, columns=placeholder_columns)
 
 # Exporting output to .csv
-
 # Create the folder 'output_table' if it doesn't exist yet
 os.makedirs("output_table", exist_ok=True)
 
 # Join the folder and filename safely
-file_path = os.path.join("output_table", "Guinness_World_Records.csv")
+file_path = os.path.join("output_table", "List_of_countries_by_number_of_billionaires.csv")
 
 # Now you can save your file
-df.index = df.index + 1
-df.to_csv(file_path, index=True) 
+# df.index = df.index + 1
+df.to_csv(file_path, index=False) 
 print(f"Saving to: {file_path}")
