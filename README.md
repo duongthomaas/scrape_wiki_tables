@@ -15,8 +15,6 @@ A Python function to scrape data from Wikipedia tables and parse them into CSV f
 - [Features](#features)
 - [How It Works](#how-it-works)
 - [Caveats](#caveats)
-- [Troubleshooting](#troubleshooting)
-- [Example Use Cases](#example-use-cases)
 - [Contributing](#contributing)
 - [License](#license)
 
