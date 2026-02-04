@@ -1,5 +1,8 @@
 # scrape_wiki_tables
 
+<img align="right" width="331" height="196" alt="scrape_wiki_tables logo" src="https://github.com/user-attachments/assets/33f509cf-2580-4907-affd-5ce7512e8ca4" />
+
+
 A Python function to scrape data from Wikipedia tables and parse them into CSV files.
 
 ## Overview
