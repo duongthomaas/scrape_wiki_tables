@@ -6,7 +6,7 @@ import os
 from unidecode import unidecode
 
 # Building function
-def get_wiki_tables_func(page_name, your_app_name, your_email, table_number, filename):
+def scrape_wiki_tables(page_name, your_app_name, your_email, table_number, filename):
 
     url = "https://en.wikipedia.org/w/api.php"
 
