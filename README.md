@@ -176,8 +176,6 @@ This value appears in the same column position for two consecutive rows.
 
 - **Table identification**: Tables are identified by the `wikitable` CSS class. Some Wikipedia tables may use different classes and won't be detected.
 
-- **Network dependency**: Requires an active internet connection to fetch Wikipedia pages.
-
 - **English Wikipedia only**: Currently configured for English Wikipedia (`en.wikipedia.org`). Other language versions require URL modification.
 
 ## Best Practices
