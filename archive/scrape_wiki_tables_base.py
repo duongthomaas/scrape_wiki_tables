@@ -8,7 +8,7 @@ url = "https://en.wikipedia.org/w/api.php"
 
 params = {
     "action": "parse",
-    "page": "List_of_countries_by_GDP_(nominal)_per_capita",
+    "page": "Wikipedia:Statistics",
     "format": "json",  
     "prop": "text"
 }
@@ -32,7 +32,7 @@ soup = BeautifulSoup(raw_html, 'html.parser')
 # 4. Find your table
 # Note: Wikipedia class names often change or have extra spaces. 
 # It is safer to select just "wikitable" or "sortable".
-table = soup.find_all('table', class_='wikitable')[0]
+table = soup.find_all('table', class_= ['wikitable', 'ratingstable'])[6]
 
 # Try to extract headers
 headers = table.find_all('tr')[0] # Taking only the first row in headers ---- This will ignore any subsequent rows possibly containing headers
@@ -47,6 +47,7 @@ for i in headers_table:
 
 # Creating dataframe using pandas
 df = pd.DataFrame(columns=headers_table_cleaned)
+# print(df)
     
 # Finding data within the table
 column_data = table.find_all('tr')
@@ -109,22 +110,32 @@ try:
         length = len(df)
         df.loc[length] = row_data
 except ValueError:
-    # Alternative when parsing headers fails - create placeholders for headers and add existing rows to those placeholders
-    # Create placeholder column names based on the number of columns in the first row
-    num_columns = len(all_rows_data[0])
-    placeholder_columns = []
-    for i in range(num_columns):
-        placeholder_columns.append(i)
-    df = pd.DataFrame(all_rows_data, columns=placeholder_columns)
+    try:
+        # Alternative when parsing headers fails - create placeholders for headers and add existing rows to those placeholders
+        # Create placeholder column names based on the number of columns in the first row
+        num_columns = len(all_rows_data[0])
+        placeholder_columns = []
+        for i in range(num_columns):
+            placeholder_columns.append(i)
+        df = pd.DataFrame(all_rows_data, columns=placeholder_columns)
+    except ValueError:
+        # Another alternative when the first alternative fails - create placeholders for headers and add existing rows to those placeholders
+        # Create placeholder column names based on the number of columns in the second row
+        num_columns = len(all_rows_data[1])
+        placeholder_columns = []
+        for i in range(num_columns):
+            placeholder_columns.append(i)
+        df = pd.DataFrame(all_rows_data, columns=placeholder_columns)
 
 # Exporting output to .csv
 # Create the folder 'output_table' if it doesn't exist yet
 os.makedirs("output_table", exist_ok=True)
 
 # Join the folder and filename safely
-file_path = os.path.join("output_table", "List_of_countries_by_GDP_(nominal)_per_capita.csv")
+file_path = os.path.join("output_table", "Wikipedia_Statistics2.csv")
 
 # Now you can save your file
 # df.index = df.index + 1
-df.to_csv(file_path, mode='x', index=False) 
+
+df.to_csv(file_path, index=False, mode='w') 
 print(f"Saving to: {file_path}")
