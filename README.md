@@ -166,7 +166,7 @@ This value appears in the same column position for two consecutive rows.
 
 ## Caveats
 
-- **Multi-row headers**: The program extracts only the first row of headers. If a Wikipedia table has headers spanning multiple rows (e.g., grouped column headers), only the first row will be captured.
+- **Multi-row headers**: The programme extracts only the first row of headers. If a Wikipedia table has headers spanning multiple rows (e.g., grouped column headers), only the first row will be captured.
 - **Header fallback**: If header extraction fails or the number of headers doesn't match the number of columns, placeholder headers (0, 1, 2, 3, ...) are used instead. This typically happens when:
   - The table structure is malformed
   - Headers use unusual HTML elements
